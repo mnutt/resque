@@ -285,18 +285,23 @@ module Resque
     }
   end
 
-
+  # Returns a hash, keyed by queue, of hashes of stats bucketed by time_unit ('day', 'hour', or 'minute')
   def info_by_time(time_unit)
     queue_stats = {}
     queues.each do |queue|
-      queue_stats[queue] = {
-        :complete => TimeStat.get("#{queue}-complete", time_unit),
-        :failed => TimeStat.get("#{queue}-failed", time_unit),
-        :enqueued => TimeStat.get("#{queue}-enqueued", time_unit)
-      }
+      queue_stats[queue] = info_by_queue_and_time(queue, time_unit)
     end
 
     queue_stats
+  end
+
+  # Returns a hash of stats bucketed by time_unit ('day', 'hour', or 'minute')
+  def info_by_queue_and_time(queue, time_unit)
+    return {
+      :complete => TimeStat.get("#{queue}-complete", time_unit),
+      :failed => TimeStat.get("#{queue}-failed", time_unit),
+      :enqueued => TimeStat.get("#{queue}-enqueued", time_unit)
+    }
   end
 
   def info_by_day; info_by_time(:day); end

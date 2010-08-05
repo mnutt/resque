@@ -172,6 +172,14 @@ module Resque
       show :stats
     end
 
+    get "/stats/all_queues/:time_unit.json" do
+      Resque.info_by_time(params[:time_unit]).to_json
+    end
+
+    get "/stats/queue/:queue/:time_unit.json" do
+      Resque.info_by_queue_and_time(params[:queue], params[:time_unit]).to_json
+    end
+
     get "/stats.txt" do
       info = Resque.info
 

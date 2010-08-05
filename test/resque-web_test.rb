@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/test_helper'
 require 'resque/server/test_helper'
- 
+
 # Root path test
 context "on GET to /" do
   setup { get "/" }
@@ -33,7 +33,7 @@ context "on GET to /failed" do
   should_respond_with_success
 end
 
-# Stats 
+# Stats
 context "on GET to /stats/resque" do
   setup { get "/stats/resque" }
 
@@ -42,6 +42,18 @@ end
 
 context "on GET to /stats/redis" do
   setup { get "/stats/redis" }
+
+  should_respond_with_success
+end
+
+context "on GET to /stats/all_queues/day.json" do
+  setup { get "/stats/all_queues/day.json" }
+
+  should_respond_with_success
+end
+
+context "on GET to /stats/queue/default/day.json" do
+  setup { get "/stats/queue/default/day.json" }
 
   should_respond_with_success
 end
