@@ -8,7 +8,7 @@ module Resque
     def get(stat, time_unit)
       keys = redis.zrangebyscore("stat:#{stat}-#{time_unit}", 0, 0)
       values = redis.mget(*keys)
-      keys.map {|k| k.sub(/^stat:#{stat}-#{time_unit}-/, '') }.zip(values)
+      Array(keys).map {|k| k.sub(/^stat:#{stat}-#{time_unit}-/, '') }.zip(Array(values).map(&:to_i))
     end
 
     # Alias of 'get'

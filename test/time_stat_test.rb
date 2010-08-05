@@ -16,7 +16,7 @@ context "Resque::TimeStat" do
     assert_match %r{stat:critical_success-hour}, stat_key
     assert_match /#{@time.strftime("%Y-%m-%d_%H")}/, stat_key
 
-    assert_equal "1", Resque::TimeStat.get("critical_success", :hour).first[1]
+    assert_equal 1, Resque::TimeStat.get("critical_success", :hour).first[1]
   end
 
   test "can increment a stat" do
@@ -39,7 +39,7 @@ context "Resque::TimeStat" do
     Resque::TimeStat.send(:now=, @time)
 
     assert_equal 2, Resque.redis.zcard("stat:critical_success-minute")
-    assert_equal ["1","1"], Resque::TimeStat.get("critical_success", :minute).map{|s| s[1] }
+    assert_equal [1, 1], Resque::TimeStat.get("critical_success", :minute).map{|s| s[1] }
   end
 
   test "can increment all time_units at once" do

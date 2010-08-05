@@ -285,6 +285,24 @@ module Resque
     }
   end
 
+
+  def info_by_time(time_unit)
+    queue_stats = {}
+    queues.each do |queue|
+      queue_stats[queue] = {
+        :complete => TimeStat.get("#{queue}-complete", time_unit),
+        :failed => TimeStat.get("#{queue}-failed", time_unit),
+        :enqueued => TimeStat.get("#{queue}-enqueued", time_unit)
+      }
+    end
+
+    queue_stats
+  end
+
+  def info_by_day; info_by_time(:day); end
+  def info_by_hour; info_by_time(:hour); end
+  def info_by_minute; info_by_time(:minute); end
+
   # Returns an array of all known Resque keys in Redis. Redis' KEYS operation
   # is O(N) for the keyspace, so be careful - this can be slow for big databases.
   def keys
