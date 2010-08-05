@@ -15,6 +15,7 @@ require 'resque/failure/base'
 
 require 'resque/helpers'
 require 'resque/stat'
+require 'resque/time_stat'
 require 'resque/job'
 require 'resque/worker'
 require 'resque/plugin'
