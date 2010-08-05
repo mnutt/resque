@@ -42,15 +42,18 @@ context "Resque::TimeStat" do
     assert_equal ["1","1"], Resque::TimeStat.get("critical_success", :minute).map{|s| s[1] }
   end
 
+  test "can increment all time_units at once" do
+    Resque::TimeStat.incr_all("critical_success")
+
+    ['day', 'hour', 'minute'].each do |time_unit|
+      assert_equal 1, Resque.redis.zcard("stat:critical_success-#{time_unit}")
+    end
+  end
+
   context "timestamp buckets" do
     setup do
       Resque::TimeStat.send(:now=, Time.utc(2010, "8", 04, 15, 26, 43))
       assert_equal "2010-08-04T15:26:43Z", Resque::TimeStat.send(:now).xmlschema
-    end
-
-    teardown do
-      raise @time.to_s
-      Resque::TimeStat.send(:now=, @time)
     end
 
     test "second" do

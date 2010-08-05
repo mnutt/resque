@@ -27,6 +27,13 @@ module Resque
       redis.zadd("stat:#{stat}-#{time_unit}", 0, "stat:#{timestamped_key}")
     end
 
+    # Increments the stat, bucketing based on day, hour, and minute
+    def incr_all(stat, by = 1)
+      [:day, :hour, :minute].each do |time_unit|
+        incr(stat, time_unit, by)
+      end
+    end
+
     # Increments stat by one, bucketing based on the timestamp.
     def <<(stat, time_unit)
       incr stat, time_unit
