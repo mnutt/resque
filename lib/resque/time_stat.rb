@@ -82,7 +82,7 @@ module Resque
     end
 
     def timestamp(time_unit)
-      timestamp = now
+      timestamp = now.utc
       case time_unit.to_s
         when 'day' then timestamp - (timestamp.hour * 60 * 60) - (timestamp.min * 60) - timestamp.sec
         when 'hour' then timestamp - (timestamp.min * 60) - timestamp.sec
