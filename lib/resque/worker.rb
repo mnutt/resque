@@ -156,10 +156,12 @@ module Resque
         run_hook :after_fork, job
         job.perform
       rescue Object => e
+        TimeStat.incr_all("#{job.queue}-failed")
         log "#{job.inspect} failed: #{e.inspect}"
         job.fail(e)
         failed!
       else
+        TimeStat.incr_all("#{job.queue}-complete")
         log "done: #{job.inspect}"
       ensure
         yield job if block_given?

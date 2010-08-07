@@ -218,14 +218,9 @@ context "Resque" do
     assert_equal 1, stats[:failed]
     assert_equal [Resque.redis.respond_to?(:server) ? 'localhost:9736' : 'redis://localhost:9736/0'], stats[:servers]
 
-    2.times do
-      Resque::Job.create(:jobs, SomeJob, 20, '/tmp')
-      Resque::Job.reserve(:jobs).perform
-    end
-
-    assert_equal 5, Resque.info_by_hour["jobs"][:enqueued].map{|stat| stat[1].to_i }.inject(0) {|m,n| m + n } # sum
+    assert_equal 3, Resque.info_by_hour["jobs"][:enqueued].map{|stat| stat[1].to_i }.inject(0) {|m,n| m + n } # sum
     assert_equal 1, Resque.info_by_hour["jobs"][:failed].map{|stat| stat[1].to_i }.inject(0) {|m,n| m + n }
-    assert_equal 3, Resque.info_by_hour["jobs"][:complete].map{|stat| stat[1].to_i }.inject(0) {|m,n| m + n }
+    assert_equal 1, Resque.info_by_hour["jobs"][:complete].map{|stat| stat[1].to_i }.inject(0) {|m,n| m + n }
 
   end
 

@@ -1,6 +1,16 @@
 <% @subtabs = resque.queues unless partial? %>
 
 <% if queue = params[:id] %>
+  <h1><span class='hl'><%= queue %></span> activity</h1>
+
+  <div id="graph"></div>
+  <div id="legend">
+    <div id="time_units"></div>
+  </div>
+  <div style="clear: both;"></div>
+  <script>
+    Resque.graphQueue('<%= queue %>');
+  </script>
 
   <h1>Pending jobs on <span class='hl'><%= queue %></span></h1>
   <form method="POST" action="<%=u "/queues/#{queue}/remove" %>" class='remove-queue'>
@@ -26,6 +36,15 @@
   </table>
   <%= partial :next_more, :start => start, :size => size %>
 <% else %>
+
+  <div id="graph"></div>
+  <div id="legend">
+    <div id="time_units"></div>
+  </div>
+  <div style="clear: both;"></div>
+  <script>
+    Resque.graphAllQueues();
+  </script>
 
   <h1 class='wi'>Queues</h1>
   <p class='intro'>The list below contains all the registered queues with the number of jobs currently in the queue. Select a queue from above to view all jobs currently pending on the queue.</p>

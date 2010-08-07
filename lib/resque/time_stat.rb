@@ -7,8 +7,14 @@ module Resque
     # Get all of the dates for a stat
     def get(stat, time_unit)
       keys = redis.zrangebyscore("stat:#{stat}-#{time_unit}", 0, 0)
-      values = redis.mget(*keys)
-      Array(keys).map {|k| k.sub(/^stat:#{stat}-#{time_unit}-/, '') }.zip(Array(values).map(&:to_i))
+      values = Array(redis.mget(*keys))
+
+      results = {}
+      Array(keys).each_with_index do |key, i|
+        results[key.sub(/^stat:#{stat}-#{time_unit}-/, '')] = values[i].to_i
+      end
+
+      results
     end
 
     # Alias of 'get'

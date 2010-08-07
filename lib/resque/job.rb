@@ -151,8 +151,6 @@ module Resque
           stack.call
         end
 
-        TimeStat.incr_all("#{queue}-complete")
-
         # Execute after_perform hook
         after_hooks.each do |hook|
           job.send(hook, *job_args)
@@ -164,8 +162,6 @@ module Resque
       # If an exception occurs during the job execution, look for an
       # on_failure hook then re-raise.
       rescue Object => e
-        TimeStat.incr_all("#{queue}-failed")
-
         failure_hooks.each { |hook| job.send(hook, e, *job_args) }
         raise e
       end
