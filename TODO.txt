@@ -1,0 +1,5 @@
+job-graphs TODO:
+  * Currently not getting rid of any old historical data. Need to cap it somehow.
+  * Sometimes tu cookie gets set with path=/queues.  Need to figure out why.
+  * Better colors.  Might involve passing data as an array rather than a hash, to guarantee a deterministic order.
+  * Homepage should break down data by [enqueued, completed, failed], and queues page should break down data by queue.
