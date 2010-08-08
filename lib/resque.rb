@@ -295,6 +295,14 @@ module Resque
     queue_stats
   end
 
+  def aggregate_info_by_time(time_unit)
+    return {
+      :complete => TimeStat.get("_all-complete", time_unit),
+      :failed => TimeStat.get("_all-failed", time_unit),
+      :enqueued => TimeStat.get("_all-enqueued", time_unit)
+    }
+  end
+
   # Returns a hash of stats bucketed by time_unit ('day', 'hour', or 'minute')
   def info_by_queue_and_time(queue, time_unit)
     return {

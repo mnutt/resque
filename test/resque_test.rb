@@ -222,6 +222,9 @@ context "Resque" do
     assert_equal 1, Resque.info_by_hour["jobs"][:failed].map{|stat| stat[1].to_i }.inject(0) {|m,n| m + n }
     assert_equal 1, Resque.info_by_hour["jobs"][:complete].map{|stat| stat[1].to_i }.inject(0) {|m,n| m + n }
 
+    assert_equal 5, Resque.aggregate_info_by_time('hour')[:enqueued].map{|stat| stat[1].to_i }.inject(0) {|m,n| m + n }
+    assert_equal 1, Resque.aggregate_info_by_time('hour')[:failed].map{|stat| stat[1].to_i }.inject(0) {|m,n| m + n }
+
   end
 
   test "decode bad json" do

@@ -49,6 +49,7 @@ module Resque
       end
 
       TimeStat.incr_all("#{queue}-enqueued")
+      TimeStat.incr_all("_all-enqueued")
 
       Resque.push(queue, :class => klass.to_s, :args => args)
     end
