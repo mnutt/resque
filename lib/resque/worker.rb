@@ -108,7 +108,7 @@ module Resque
       startup
 
       loop do
-        break if @shutdown
+        break if shutdown?
 
         if not @paused and job = reserve
           log "got: #{job.inspect}"
@@ -269,6 +269,11 @@ module Resque
     def shutdown!
       shutdown
       kill_child
+    end
+
+    # Should this worker shutdown as soon as current job is finished?
+    def shutdown?
+      @shutdown
     end
 
     # Kills the forked child immediately, without remorse. The job it
