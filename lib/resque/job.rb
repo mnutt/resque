@@ -51,7 +51,11 @@ module Resque
       TimeStat.incr_all("#{queue}-enqueued")
       TimeStat.incr_all("_all-enqueued")
 
-      Resque.push(queue, :class => klass.to_s, :args => args)
+      ret = Resque.push(queue, :class => klass.to_s, :args => args)
+      Plugin.after_enqueue_hooks(klass).each do |hook|
+        klass.send(hook, *args)
+      end
+      ret
     end
 
     # Removes a job from a queue. Expects a string queue name, a
