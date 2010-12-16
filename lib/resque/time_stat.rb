@@ -4,13 +4,19 @@ module Resque
     extend self
     extend Helpers
 
+    EXPIRATIONS = {
+      :minute => 60 * 60, # minute stats expire after an hour
+      :hour => 60 * 60 * 24, # hour stats expire after a day
+      :day => 60 * 60 * 24 * 30 # day stats expire after a month
+    }
+
     # Get all of the dates for a stat
     def get(stat, time_unit)
-      keys = redis.zrangebyscore("stat:#{stat}-#{time_unit}", 0, 0)
-      values = keys.size > 0 ? redis.mget(*keys) : []
+      keys = timestamp_range(time_unit).map{ |ts| "stat:#{timestamped_stat(stat, time_unit, ts)}" }
+      values = redis.mget(*keys) || []
 
       results = {}
-      Array(keys).each_with_index do |key, i|
+      keys.compact.each_with_index do |key, i|
         results[key.sub(/^stat:#{stat}-#{time_unit}-/, '')] = values[i].to_i
       end
 
@@ -28,9 +34,13 @@ module Resque
     # optionally accept a third int parameter.  The stat is then incremented
     # by that much
     def incr(stat, time_unit, by = 1)
-      timestamped_key = timestamped_stat(stat, time_unit)
-      redis.incrby("stat:#{timestamped_key}", by)
-      redis.zadd("stat:#{stat}-#{time_unit}", 0, "stat:#{timestamped_key}")
+      timestamped_key = "stat:#{timestamped_stat(stat, time_unit)}"
+      redis.incrby(timestamped_key, by)
+
+      # expire will work correctly in >= 2.1.3
+      # redis.expire(timestamped_key, EXPIRATIONS[time_unit.to_sym]) if EXPIRATIONS[time_unit.to_sym]
+
+      timestamped_key
     end
 
     # Increments the stat, bucketing based on day, hour, and minute
@@ -51,8 +61,13 @@ module Resque
     # optionally accept a third int parameter.  The stat is then decremented
     # by that much
     def decr(stat, time_unit, by = 1)
-      timestamped_key = timestamped_stat(stat, time_unit)
-      redis.decrby("stat:#{timestamped_key}", by)
+      timestamped_key = "stat:#{timestamped_stat(stat, time_unit)}"
+      redis.decrby(timestamped_key, by)
+
+      # expire will work correctly in >= 2.1.3
+      # redis.expire(timestamped_key, EXPIRATIONS[time_unit.to_sym]) if EXPIRATIONS[time_unit.to_sym]
+
+      timestamped_key
     end
 
     # Decrements stat by one, bucketing based on the timestamp.
@@ -91,8 +106,24 @@ module Resque
       end
     end
 
-    def timestamped_stat(stat, time_unit)
-      "#{stat}-#{time_unit}-#{timestamp(time_unit).strftime('%Y-%m-%d_%H:%M:%S')}"
+    def timestamp_range(time_unit)
+      now_timestamp = timestamp(time_unit)
+
+      timestamps = [now_timestamp]
+      case time_unit.to_s
+        when 'day' then
+          (1..29).to_a.each { |i| timestamps.push now_timestamp - (i * 60 * 60 * 24) }
+        when 'hour' then
+          (1..23).to_a.each { |i| timestamps.push now_timestamp - (i * 60 * 60) }
+        when 'minute' then
+          (1..59).to_a.each { |i| timestamps.push now_timestamp - (i * 60) }
+      end
+
+      timestamps
+    end
+
+    def timestamped_stat(stat, time_unit, time=nil)
+      "#{stat}-#{time_unit}-#{(time || timestamp(time_unit)).strftime('%Y-%m-%d_%H:%M:%S')}"
     end
 
   end
