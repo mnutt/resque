@@ -77,13 +77,7 @@ module Resque
 
     # Clears all timestamps for the stat.
     def clear(stat)
-      %w(day hour minute second).each do |time_unit|
-        stat_list = redis.get("stat:#{stat}-#{time_unit}")
-        if stat_list
-          redis.mdel(stat_list)
-          redis.del("stat:#{stat}-#{time_unit}")
-        end
-      end
+      redis.keys("stat:#{stat}-*").each { |key| redis.del(key) }
     end
 
     protected
