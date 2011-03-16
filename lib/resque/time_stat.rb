@@ -37,8 +37,8 @@ module Resque
       timestamped_key = "stat:#{timestamped_stat(stat, time_unit)}"
       redis.incrby(timestamped_key, by)
 
-      # expire will work correctly in >= 2.1.3
-      # redis.expire(timestamped_key, EXPIRATIONS[time_unit.to_sym]) if EXPIRATIONS[time_unit.to_sym]
+      # expire will only work correctly in >= 2.1.3
+      redis.expire(timestamped_key, EXPIRATIONS[time_unit.to_sym]) if EXPIRATIONS[time_unit.to_sym]
 
       timestamped_key
     end
