@@ -13,7 +13,7 @@ module Resque
     # Get all of the dates for a stat
     def get(stat, time_unit)
       keys = timestamp_range(time_unit).map{ |ts| "stat:#{timestamped_stat(stat, time_unit, ts)}" }
-      values = redis.mget(*keys) || []
+      values = redis.mget(keys) || []
 
       results = {}
       keys.compact.each_with_index do |key, i|
